@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot — Globatech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        /* ── Chatbot styles (same as before) ── */
+        .chatbot-wrapper {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(30, 27, 24, 0.07), 0 4px 12px rgba(30, 27, 24, 0.04);
+            border: 1px solid #e5ddd4;
+            overflow: hidden;
+            margin: 2.5rem 0 2rem 0;
+            display: flex;
+            flex-direction: column;
+            height: 560px;
+        }
+        .chat-header {
+            padding: 1.2rem 1.8rem;
+            background: #faf8f5;
+            border-bottom: 1px solid #e5ddd4;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #b7a98f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #1e1b18;
+            font-weight: 600;
+            font-family: 'Newsreader', serif;
+            flex-shrink: 0;
+        }
+        .chat-header-info {
+            flex: 1;
+        }
+        .chat-header-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e1b18;
+            margin: 0;
+        }
+        .chat-header-info p {
+            font-size: 0.75rem;
+            color: #7a6c5c;
+            margin: 0;
+        }
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.7rem;
+            color: #2b6e4e;
+        }
+        .chat-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2b6e4e;
+            display: inline-block;
+            animation: pulse-dot 1.6s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.2rem 1.8rem;
+            background: #fcfaf7;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            min-height: 0;
+        }
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: #ede8e1;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #b7a98f;
+            border-radius: 4px;
+        }
+        .msg {
+            max-width: 82%;
+            padding: 0.7rem 1.2rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: msgIn 0.25s ease-out;
+            word-wrap: break-word;
+        }
+        .msg-bot {
+            align-self: flex-start;
+            background: #ede8e1;
+            color: #1e1b18;
+            border-bottom-left-radius: 4px;
+        }
+        .msg-user {
+            align-self: flex-end;
+            background: #b7a98f;
+            color: #1e1b18;
+            border-bottom-right-radius: 4px;
+        }
+        @keyframes msgIn {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .msg .msg-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            opacity: 0.6;
+            margin-bottom: 0.1rem;
+        }
+        .msg-bot .msg-label { color: #5f5345; }
+        .msg-user .msg-label { color: #4d4238; }
+        .msg ul, .msg ol {
+            margin: 0.3rem 0 0 1.2rem;
+            padding: 0;
+        }
+        .msg li { margin-bottom: 0.15rem; }
+        .msg code {
+            font-family: 'IBM Plex Mono', monospace;
+            background: rgba(30, 27, 24, 0.08);
+            padding: 0.05rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        .msg strong { font-weight: 600; }
+        .msg em { font-style: italic; }
+
+        .chat-typing {
+            align-self: flex-start;
+            background: #ede8e1;
+            padding: 0.7rem 1.4rem;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            display: none;
+            gap: 0.3rem;
+            align-items: center;
+        }
+        .chat-typing span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #7a6c5c;
+            display: inline-block;
+            animation: typingBounce 1.2s ease-in-out infinite;
+        }
+        .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        .chat-input-area {
+            padding: 1rem 1.8rem;
+            border-top: 1px solid #e5ddd4;
+            background: #faf8f5;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 0.7rem 1.2rem;
+            border: 1px solid #ddd6cc;
+            border-radius: 40px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 0.9rem;
+            background: #ffffff;
+            color: #1e1b18;
+            outline: none;
+            transition: border-color 0.2s;
+            min-width: 140px;
+        }
+        .chat-input-area input:focus {
+            border-color: #b7a98f;
+            box-shadow: 0 0 0 3px rgba(183, 169, 143, 0.15);
+        }
+        .chat-input-area input::placeholder {
+            color: #a69784;
+        }
+        .chat-input-area button {
+            padding: 0.7rem 1.6rem;
+            border-radius: 40px;
+            border: none;
+            background: #b7a98f;
+            color: #1e1b18;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .chat-input-area button:hover { background: #c9bb9f; }
+        .chat-input-area button:active { transform: scale(0.96); }
+        .chat-input-area button:disabled {
+            background: #d5ccc0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chat-suggestions {
+            padding: 0.6rem 1.8rem 1rem 1.8rem;
+            background: #faf8f5;
+            border-top: 1px solid #ede8e1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .chat-suggestions .suggest-chip {
+            padding: 0.25rem 1rem;
+            border-radius: 40px;
+            background: #ede8e1;
+            font-size: 0.75rem;
+            color: #4d4238;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .chat-suggestions .suggest-chip:hover {
+            background: #ddd6cc;
+            transform: translateY(-1px);
+        }
+        .chat-suggestions .suggest-chip:active {
+            transform: scale(0.96);
+        }
+
+        @media (max-width: 600px) {
+            .chatbot-wrapper { height: 480px; border-radius: 16px; }
+            .chat-messages { padding: 1rem 1.2rem; }
+            .chat-input-area { padding: 0.8rem 1.2rem; flex-wrap: wrap; }
+            .chat-input-area input { flex: 1 1 100%; }
+            .chat-input-area button { flex: 0 0 auto; padding: 0.6rem 1.4rem; }
+            .msg { max-width: 92%; font-size: 0.85rem; padding: 0.6rem 1rem; }
+            .chat-suggestions { padding: 0.4rem 1.2rem 0.8rem 1.2rem; gap: 0.4rem; }
+            .chat-suggestions .suggest-chip { font-size: 0.7rem; padding: 0.2rem 0.8rem; }
+            .chat-header { padding: 0.9rem 1.2rem; flex-wrap: wrap; }
+            .chat-avatar { width: 34px; height: 34px; font-size: 1rem; }
+            .chat-header-info h3 { font-size: 0.9rem; }
+        }
+        @media (max-width: 400px) {
+            .chatbot-wrapper { height: 420px; }
+            .chat-suggestions .suggest-chip { font-size: 0.65rem; padding: 0.15rem 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── NAV ─── -->
+    <nav class="site-nav">
+        <div class="wrap">
+            <a href="index.html" class="brand">
+                <img src="images/logo-globatech-2.png" alt="Globatech" height="32" />
+            </a>
+            <div class="navlinks">
+                <a href="index.html">Home</a>
+                <a href="pipeline.html">Pipeline</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="models.html">Models</a>
+                <a href="chatbot.html" class="active">Chatbot</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+        </div>
+    </nav>
+
+    <!-- ─── HEADER ─── -->
+    <header class="page-header">
+        <div class="wrap">
+            <div class="eyebrow">05 — Chatbot</div>
+            <h1>Ask the Data Science Assistant.</h1>
+            <p class="page-sub">AI‑powered chatbot that answers any question about data science, BI, dashboards, data mining, machine learning, and more.</p>
+        </div>
+    </header>
+
+    <!-- ─── CHATBOT ─── -->
+    <section>
+        <div class="wrap">
+            <div class="chatbot-wrapper">
+                <div class="chat-header">
+                    <div class="chat-avatar">✦</div>
+                    <div class="chat-header-info">
+                        <h3>Globatech Assistant</h3>
+                        <p>Data Science &amp; BI expert</p>
+                    </div>
+                    <div class="chat-status">
+                        <span class="dot"></span> <span id="statusLabel">✅ AI ready</span>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="msg msg-bot">
+                        <div class="msg-label">Assistant</div>
+                        👋 Hi there! I'm your AI data assistant. Ask me anything about <strong>data science, BI, dashboards, data mining, machine learning, SQL, Python, Power BI, ETL, or insurance analytics</strong> — I'll give you a thoughtful, intelligent answer.
+                    </div>
+                </div>
+
+                <div class="chat-typing" id="typingIndicator">
+                    <span></span><span></span><span></span>
+                </div>
+
+                <div class="chat-suggestions" id="suggestions">
+                    <span class="suggest-chip" data-question="What is data science?">What is data science?</span>
+                    <span class="suggest-chip" data-question="How do I build a dashboard?">How to build a dashboard?</span>
+                    <span class="suggest-chip" data-question="What is Power BI?">What is Power BI?</span>
+                    <span class="suggest-chip" data-question="What is unsupervised learning?">What is unsupervised learning?</span>
+                    <span class="suggest-chip" data-question="SQL vs NoSQL: what's the difference?">SQL vs NoSQL</span>
+                    <span class="suggest-chip" data-question="Explain ETL in simple terms">Explain ETL</span>
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" placeholder="Ask me anything about data..." autofocus />
+                    <button id="sendBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── FOOTER ─── -->
+    <footer>
+        <div class="wrap">
+            <div class="footer-cta">
+                <h2>Want this pipeline built for your data?</h2>
+                <a href="index.html" class="btn btn-primary">Back to home</a>
+            </div>
+            <div class="footer-bottom">
+                <div>© 2026 Globatech — Data Science</div>
+                <div>
+                    <a href="index.html">Home</a> &nbsp;·&nbsp;
+                    <a href="models.html">Models</a> &nbsp;·&nbsp;
+                    <a href="dashboard.html">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="to-top" aria-label="Back to top">↑</button>
+
+    <script>
+        // ──────────────────────────────────────────────────────────────────────
+        //  🔐 SECURE: API keys (Groq + Supabase) live on the backend only.
+        //  In production this calls the Netlify Function at /api/chat, which
+        //  is redirected to /.netlify/functions/chat (see netlify.toml).
+        //  Locally, run `netlify dev` and this same relative path just works.
+        // ──────────────────────────────────────────────────────────────────────
+
+const BACKEND_URL = '/api/chat';
+
+        // ── Per-visit session id, used only to group a conversation's turns
+        //    together in the chat_logs table — no personal data involved ──
+        function getSessionId() {
+            let id = sessionStorage.getItem('gt_chat_session');
+            if (!id) {
+                id = (crypto.randomUUID ? crypto.randomUUID() : 'sess-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+                sessionStorage.setItem('gt_chat_session', id);
+            }
+            return id;
+        }
+
+        // ── DOM refs ──
+        const messagesEl = document.getElementById('chatMessages');
+        const inputEl = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingEl = document.getElementById('typingIndicator');
+
+        // ── UI helpers ──
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `msg msg-${sender}`;
+            const label = sender === 'bot' ? 'Assistant' : 'You';
+            div.innerHTML = `<div class="msg-label">${label}</div>${text}`;
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function showTyping(show) {
+            typingEl.style.display = show ? 'flex' : 'none';
+            if (show) messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function setButtonsEnabled(enabled) {
+            sendBtn.disabled = !enabled;
+            inputEl.disabled = !enabled;
+        }
+
+        // ── Send message to backend ──
+        async function handleSend() {
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            inputEl.value = '';
+            inputEl.focus();
+            setButtonsEnabled(false);
+            showTyping(true);
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, sessionId: getSessionId() })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Server error');
+                }
+
+                showTyping(false);
+                addMessage(data.reply, 'bot');
+            } catch (err) {
+                showTyping(false);
+                addMessage(
+                    `⚠️ <em>Could not reach the assistant right now.</em><br><br>Error: ${err.message}`,
+                    'bot'
+                );
+            } finally {
+                setButtonsEnabled(true);
+                inputEl.focus();
+            }
+        }
+
+        // ── Event listeners ──
+        sendBtn.addEventListener('click', handleSend);
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        // ── Suggestion chips ──
+        document.querySelectorAll('.suggest-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                inputEl.value = chip.dataset.question;
+                handleSend();
+            });
+        });
+
+        // ── To-top button ──
+        const toTop = document.querySelector('.to-top');
+        window.addEventListener('scroll', () => {
+            toTop.classList.toggle('visible', window.scrollY > 400);
+        });
+        toTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        toTop.style.opacity = '0';
+
+        // ── Mobile nav toggle ──
+        const toggle = document.querySelector('.nav-toggle');
+        const navLinks = document.querySelector('.navlinks');
+        toggle.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+            toggle.setAttribute('aria-expanded', expanded);
+            navLinks.style.display = expanded === 'true' ? 'flex' : 'none';
+            if (expanded === 'true') {
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '100%';
+                navLinks.style.left = '0';
+                navLinks.style.right = '0';
+                navLinks.style.background = '#1e1b18';
+                navLinks.style.padding = '1.5rem 2rem';
+                navLinks.style.gap = '1.2rem';
+                navLinks.style.borderTop = '1px solid #3a342e';
+                navLinks.style.zIndex = '99';
+            }
+        });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 520) {
+                navLinks.style.display = 'flex';
+                navLinks.style.flexDirection = 'row';
+                navLinks.style.position = 'static';
+                navLinks.style.padding = '0';
+                navLinks.style.gap = '1.8rem';
+                navLinks.style.borderTop = 'none';
+                toggle.setAttribute('aria-expanded', 'false');
+            } else if (toggle.getAttribute('aria-expanded') === 'false') {
+                navLinks.style.display = 'none';
+            }
+        });
+        if (window.innerWidth <= 520) {
+            navLinks.style.display = 'none';
+        }
+
+        setTimeout(() => inputEl.focus(), 400);
+    </script>
+
+</body>
+</html>

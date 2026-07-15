@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Models — Globatech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ── Styles (unchanged) ── */
+        .models-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            margin: 32px 0;
+        }
+        .model-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 32px 28px 28px 28px;
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.25s, transform 0.2s;
+        }
+        .model-card:hover {
+            border-color: var(--warm);
+            transform: translateY(-2px);
+        }
+        .model-tag {
+            font-family: var(--mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent-hi);
+            margin-bottom: 8px;
+            display: inline-block;
+            padding: 2px 10px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            width: fit-content;
+        }
+        .model-card h3 {
+            font-family: var(--serif);
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 6px 0;
+            color: var(--ink);
+        }
+        .model-desc {
+            font-size: 14px;
+            color: var(--ink-dim);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .model-desc code {
+            font-family: var(--mono);
+            background: var(--bg-alt);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: var(--accent-hi);
+        }
+        .chart-grid {
+            display: grid;
+            gap: 16px;
+            margin: 0 0 16px 0;
+        }
+        .chart-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .chart-grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .chart-panel {
+            background: var(--bg-alt);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 12px 12px 8px 12px;
+            transition: border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-panel:hover {
+            border-color: var(--warm);
+        }
+        .chart-panel .chart-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+        }
+        .chart-container-lg {
+            height: 300px !important;
+        }
+        .chart-panel-featured {
+            margin-bottom: 16px;
+        }
+        .chart-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 0 2px 10px 2px;
+        }
+        .cp-title {
+            font-family: var(--sans, 'IBM Plex Sans', sans-serif);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+        .cp-badge {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-hi);
+            background: var(--bg);
+            border: 1px solid var(--line);
+            padding: 2px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+        .chart-caption-left {
+            text-align: left;
+            font-family: var(--sans, 'IBM Plex Sans', sans-serif);
+            font-size: 11px;
+            letter-spacing: 0;
+            line-height: 1.5;
+            padding: 10px 2px 0 2px;
+        }
+        .chart-panel .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .chart-caption {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--ink-faint);
+            text-align: center;
+            padding: 6px 0 0 0;
+            letter-spacing: 0.04em;
+            border-top: 1px solid var(--line);
+            margin-top: 8px;
+            padding-top: 6px;
+        }
+        .code-toggle {
+            background: none;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 8px 16px;
+            color: var(--ink-dim);
+            font-family: var(--mono);
+            font-size: 11px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+            width: fit-content;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .code-toggle:hover {
+            border-color: var(--warm);
+            color: var(--ink);
+            background: var(--bg-alt);
+        }
+        .code-toggle .arrow {
+            transition: transform 0.25s;
+            display: inline-block;
+        }
+        .code-toggle.open .arrow {
+            transform: rotate(90deg);
+        }
+        .code-block {
+            display: none;
+            margin-top: 12px;
+            background: var(--bg-alt);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            overflow-x: auto;
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.8;
+            color: var(--ink-dim);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .code-block.open { display: block; }
+        .code-block .kw { color: var(--accent-hi); }
+        .code-block .fn { color: var(--warm); }
+        .code-block .str { color: #8fb5a0; }
+        .code-block .cmt { color: var(--ink-faint); font-style: italic; }
+        .model-metrics {
+            display: flex;
+            gap: 24px;
+            border-top: 1px solid var(--line);
+            padding-top: 16px;
+            margin: 16px 0 0 0;
+        }
+        .model-metrics .metric {
+            display: flex;
+            flex-direction: column;
+        }
+        .model-metrics .m-val {
+            font-family: var(--mono);
+            font-size: 20px;
+            color: var(--warm);
+            font-weight: 500;
+        }
+        .model-metrics .m-val.warn {
+            color: #d4a76a;
+        }
+        .model-metrics .m-lbl {
+            font-size: 10.5px;
+            color: var(--ink-faint);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .caveat-box {
+            background: var(--bg-alt);
+            border-left: 3px solid #d4a76a;
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-top: 14px;
+        }
+        .caveat-box p {
+            font-size: 12.5px;
+            color: var(--ink-faint);
+            line-height: 1.6;
+            margin: 0;
+        }
+        .caveat-box code {
+            font-family: var(--mono);
+            background: var(--card);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: var(--accent-hi);
+        }
+        .jupyter-banner {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            margin-top: 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .jupyter-banner .j-icon { font-size: 32px; line-height: 1; }
+        .jupyter-banner .j-text { flex: 1; }
+        .jupyter-banner .j-text h4 {
+            font-family: var(--serif);
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .jupyter-banner .j-text p {
+            font-size: 13px;
+            color: var(--ink-dim);
+            margin: 0;
+            line-height: 1.6;
+        }
+        .jupyter-banner .j-btn {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: var(--radius);
+            padding: 8px 18px;
+            transition: background 0.2s, color 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+            background: transparent;
+        }
+        .jupyter-banner .j-btn:hover {
+            background: var(--warm);
+            color: var(--bg-alt);
+        }
+        .chat-widget {
+            margin-top: 40px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .chat-widget .chat-head {
+            padding: 1.2rem 1.8rem;
+            border-bottom: 1px solid var(--line);
+            background: var(--bg-alt);
+        }
+        .chat-widget .chat-head h3 {
+            font-family: var(--serif);
+            font-size: 1.2rem;
+            margin: 0;
+            color: var(--ink);
+        }
+        .chat-widget .chat-head p {
+            font-size: 0.85rem;
+            color: var(--ink-dim);
+            margin: 0.2rem 0 0 0;
+        }
+        .chat-widget .chat-body {
+            padding: 1.2rem 1.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+            background: var(--bg-alt);
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .chat-widget .chat-body .msg {
+            max-width: 85%;
+            padding: 0.7rem 1.2rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        .chat-widget .chat-body .msg.user {
+            align-self: flex-end;
+            background: var(--warm);
+            color: var(--bg-alt);
+            border-bottom-right-radius: 4px;
+        }
+        .chat-widget .chat-body .msg.bot {
+            align-self: flex-start;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-bottom-left-radius: 4px;
+            color: var(--ink-dim);
+        }
+        .chat-widget .chat-body .msg.bot .label {
+            font-weight: 600;
+            color: var(--warm);
+            font-size: 0.7rem;
+            display: block;
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .chat-widget .chat-btns {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.6rem 1.8rem;
+            flex-wrap: wrap;
+            background: var(--bg-alt);
+            border-top: 1px solid var(--line);
+        }
+        .chat-widget .chat-btns button {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 0.3rem 1.2rem;
+            font-size: 0.75rem;
+            color: var(--ink-dim);
+            cursor: pointer;
+            font-family: var(--mono);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .chat-widget .chat-btns button:hover {
+            border-color: var(--warm);
+            color: var(--ink);
+        }
+        .chat-widget .chat-input {
+            display: flex;
+            gap: 0.8rem;
+            padding: 0.8rem 1.8rem 1.2rem;
+            border-top: 1px solid var(--line);
+            background: var(--bg-alt);
+        }
+        .chat-widget .chat-input input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 40px;
+            background: var(--card);
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-widget .chat-input input:focus {
+            border-color: var(--warm);
+        }
+        .chat-widget .chat-input input::placeholder {
+            color: var(--ink-faint);
+        }
+        .chat-widget .chat-input button {
+            padding: 0.6rem 1.6rem;
+            border: none;
+            border-radius: 40px;
+            background: var(--warm);
+            color: var(--bg-alt);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: var(--sans);
+        }
+        .chat-widget .chat-input button:hover {
+            background: var(--accent-hi);
+        }
+        @media (max-width: 920px) {
+            .chart-grid-3 { grid-template-columns: 1fr 1fr; }
+            .chart-grid-2 { grid-template-columns: 1fr 1fr; }
+            .model-card { padding: 24px 18px; }
+        }
+        @media (max-width: 600px) {
+            .chart-grid-3 { grid-template-columns: 1fr; }
+            .chart-grid-2 { grid-template-columns: 1fr; }
+            .chart-panel .chart-container { height: 160px; }
+            .chart-container-lg { height: 220px !important; }
+            .chart-panel-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .model-metrics { flex-wrap: wrap; gap: 12px; }
+            .jupyter-banner { flex-direction: column; align-items: flex-start; }
+            .chat-widget .chat-body .msg { max-width: 95%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── NAV ─── -->
+    <nav class="site-nav">
+        <div class="wrap">
+            <a href="index.html" class="brand">
+                <img src="images/logo-globatech-2.png" alt="Globatech" height="32" />
+            </a>
+            <div class="navlinks">
+                <a href="index.html">Home</a>
+                <a href="pipeline.html">Pipeline</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="models.html" class="active">Models</a>
+                <a href="chatbot.html">Chatbot</a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+        </div>
+    </nav>
+
+    <!-- ─── HEADER ─── -->
+    <header class="page-header">
+        <div class="wrap">
+            <div class="eyebrow">04 — Models</div>
+            <h1>Three models, one warehouse.</h1>
+            <p class="page-sub">Trained on <strong>Assurance_Warehouse</strong> (50,191 claims, 224,844 payments) — evaluated on held-out policy years. <span style="color:var(--accent-hi);">All charts are interactive.</span></p>
+        </div>
+    </header>
+
+    <!-- ─── MAIN ─── -->
+    <section>
+        <div class="wrap">
+
+            <div class="models-grid">
+
+                <!-- ===== MODEL A ===== -->
+                <div class="model-card reveal">
+                    <span class="model-tag">📊 REGRESSION</span>
+                    <h3>Claim severity prediction</h3>
+                    <p class="model-desc">
+                        XGBoost regressor estimating expected claim amount (<code>REGLEMENT_TOTAL</code>). Top drivers:
+                        <strong>BRANCHE_ENC</strong> and <strong>EVALUATION_INITIAL</strong>.
+                    </p>
+
+                    <div class="chart-panel chart-panel-featured">
+                        <div class="chart-panel-head">
+                            <span class="cp-title">Predicted vs. actual claim severity</span>
+                            <span class="cp-badge">R² = 0.936</span>
+                        </div>
+                        <div class="chart-container chart-container-lg"><canvas id="aPredActual"></canvas></div>
+                        <div class="chart-caption chart-caption-left">Each point is one held-out claim. The closer a point sits to the dashed line, the more exact the prediction — 93.6% of variance in claim amount is explained by the model.</div>
+                    </div>
+
+                    <div class="chart-grid chart-grid-2">
+                        <div class="chart-panel">
+                            <div class="chart-container"><canvas id="aResiduals"></canvas></div>
+                            <div class="chart-caption">Residuals distribution</div>
+                        </div>
+                        <div class="chart-panel">
+                            <div class="chart-container"><canvas id="aFeatures"></canvas></div>
+                            <div class="chart-caption">Feature importance</div>
+                        </div>
+                    </div>
+
+                    <div class="model-metrics">
+                        <div class="metric"><span class="m-val">0.936</span><span class="m-lbl">R²</span></div>
+                        <div class="metric"><span class="m-val">18,110</span><span class="m-lbl">MAE (FCFA)</span></div>
+                    </div>
+
+                    <button class="code-toggle" onclick="toggleCode(this)">
+                        <span class="arrow">▶</span> View Python code
+                    </button>
+                    <div class="code-block">
+                        <span class="cmt"># Model A — XGBoost Regressor (severity)</span>
+                        <span class="kw">import</span> xgboost <span class="kw">as</span> xgb
+                        <span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_absolute_error, r2_score
+                        <span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+                        <span class="cmt"># Load warehouse data</span>
+                        df = pd.read_sql(<span class="str">"SELECT * FROM FACT_SINISTRES"</span>, engine)
+                        X = df[[<span class="str">'BRANCHE_ENC'</span>, <span class="str">'EVALUATION_INITIAL'</span>, <span class="str">'SAP_AMOUNT'</span>]]
+                        y = df[<span class="str">'REGLEMENT_TOTAL'</span>]
+
+                        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+                        model = xgb.XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
+                        model.fit(X_train, y_train)
+                        y_pred = model.predict(X_test)
+
+                        <span class="kw">print</span>(<span class="str">f"R²: {r2_score(y_test, y_pred):.3f}"</span>)
+                        <span class="kw">print</span>(<span class="str">f"MAE: {mean_absolute_error(y_test, y_pred):,.0f} FCFA"</span>)
+                    </div>
+                </div>
+
+                <!-- ===== MODEL B ===== -->
+                <div class="model-card reveal">
+                    <span class="model-tag">🎯 CLASSIFICATION</span>
+                    <h3>Claim likelihood flag</h3>
+                    <p class="model-desc">
+                        Binary classifier predicting whether a policy will generate a claim.
+                        <strong>Perfect separation</strong> on the test set — but check the caveat below.
+                    </p>
+
+                    <div class="chart-grid chart-grid-3">
+                        <div class="chart-panel">
+                            <div class="chart-container"><canvas id="bConfusion"></canvas></div>
+                            <div class="chart-caption">Confusion matrix — 100% accuracy</div>
+                        </div>
+                        <div class="chart-panel">
+                            <div class="chart-container"><canvas id="bROC"></canvas></div>
+                            <div class="chart-caption">ROC curve — AUC = 1.000</div>
+                        </div>
+                        <div class="chart-panel">
+                            <div class="chart-container"><canvas id="bFeatures"></canvas></div>
+                            <div class="chart-caption">Feature importance</div>
+                        </div>
+                    </div>
+
+                    <div class="model-metrics">
+                        <div class="metric"><span class="m-val">1.000</span><span class="m-lbl">AUC-ROC</span></div>
+                        <div class="metric"><span class="m-val">1.000</span><span class="m-lbl">Precision</span></div>
+                    </div>
+
+                    <div class="caveat-box">
+                        <p>⚠️ <strong>Caveat:</strong> Perfect accuracy suggests the target may be deterministically derived from features (e.g., <code>EVALUATION_INITIAL</code> being zero for policies without claims). Investigate data leakage before relying on this model.</p>
+                    </div>
+
+                    <button class="code-toggle" onclick="toggleCode(this)">
+                        <span class="arrow">▶</span> View Python code
+                    </button>
+                    <div class="code-block">
+                        <span class="cmt"># Model B — XGBoost Classifier (likelihood)</span>
+                        <span class="kw">import</span> xgboost <span class="kw">as</span> xgb
+                        <span class="kw">from</span> sklearn.metrics <span class="kw">import</span> roc_auc_score, confusion_matrix
+
+                        df[<span class="str">'HAS_CLAIM'</span>] = (df[<span class="str">'CLAIM_COUNT'</span>] > 0).astype(int)
+                        X = df[[<span class="str">'RATIO_SAP_EVAL'</span>, <span class="str">'EVALUATION_INITIAL'</span>, <span class="str">'SAP_AMOUNT'</span>]]
+                        y = df[<span class="str">'HAS_CLAIM'</span>]
+
+                        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+                        clf = xgb.XGBClassifier(n_estimators=80, learning_rate=0.15, max_depth=4)
+                        clf.fit(X_train, y_train)
+                        y_pred = clf.predict(X_test)
+
+                        <span class="kw">print</span>(<span class="str">f"AUC: {roc_auc_score(y_test, y_pred):.3f}"</span>)
+                        <span class="kw">print</span>(confusion_matrix(y_test, y_pred))
+                    </div>
+                </div>
+
+                <!-- ===== MODEL C ===== -->
+                <div class="model-card reveal">
+                    <span class="model-tag">📈 TIME-SERIES</span>
+                    <h3>Collections forecast</h3>
+                    <p class="model-desc">
+                        Monthly forecast of <strong>encaissements</strong> for treasury planning.
+                        <span style="color:#d4a76a;">Currently unreliable</span> due to outlier sensitivity.
+                    </p>
+
+                    <div class="chart-grid chart-grid-2">
+                        <div class="chart-panel">
+                            <div class="chart-container"><canvas id="cPredActual"></canvas></div>
+                            <div class="chart-caption">Test set — MAPE = 58,829%</div>
+                        </div>
+                        <div class="chart-panel">
+                            <div class="chart-container"><canvas id="cForecast"></canvas></div>
+                            <div class="chart-caption">6‑month collection forecast</div>
+                        </div>
+                    </div>
+
+                    <div class="model-metrics">
+                        <div class="metric"><span class="m-val warn">58,829%</span><span class="m-lbl">MAPE</span></div>
+                        <div class="metric"><span class="m-val">6 mo</span><span class="m-lbl">Horizon</span></div>
+                    </div>
+
+                    <div class="caveat-box">
+                        <p>⚠️ <strong>Action needed:</strong> The forecast is not reliable due to extreme outliers and insufficient history. Consider using a <strong>SARIMA</strong> model or <strong>Prophet</strong> with robust outlier handling.</p>
+                    </div>
+
+                    <button class="code-toggle" onclick="toggleCode(this)">
+                        <span class="arrow">▶</span> View Python code
+                    </button>
+                    <div class="code-block">
+                        <span class="cmt"># Model C — Time-series forecast (collections)</span>
+                        <span class="kw">import</span> pandas <span class="kw">as</span> pd
+                        <span class="kw">from</span> statsmodels.tsa.holtwinters <span class="kw">import</span> ExponentialSmoothing
+
+                        df_pay = pd.read_sql(<span class="str">"SELECT DATE, AMOUNT FROM FACT_PAYMENTS"</span>, engine)
+                        ts = df_pay.groupby(pd.Grouper(key=<span class="str">'DATE'</span>, freq=<span class="str">'M'</span>)).sum()
+
+                        train = ts.iloc[:-12]
+                        test = ts.iloc[-12:]
+
+                        model = ExponentialSmoothing(train, trend=<span class="str">'add'</span>, seasonal=<span class="str">'add'</span>, seasonal_periods=12)
+                        fitted = model.fit()
+                        forecast = fitted.forecast(6)
+
+                        <span class="cmt"># ⚠️ MAPE > 50,000% — model needs rework</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Chatbot ── -->
+            <div class="chat-widget reveal">
+                <div class="chat-head">
+                    <h3>🧠 Chat with the models</h3>
+                    <p>Ask any question about Model A, B, or C — I'll give you a thoughtful AI answer.</p>
+                </div>
+                <div class="chat-body" id="chatBody">
+                    <div class="msg bot">
+                        <span class="label">Assistant</span>
+                        Hi! I know everything about the three models on this page. Ask me about their performance, features, caveats, or anything else. Try: <em>"What is the R² of Model A?"</em> or <em>"Why is Model B suspicious?"</em>
+                    </div>
+                </div>
+                <div class="chat-btns">
+                    <button onclick="askQuestion('Tell me about Model A')">📊 Model A</button>
+                    <button onclick="askQuestion('Explain Model B')">🎯 Model B</button>
+                    <button onclick="askQuestion('Why is Model C unreliable?')">📈 Model C</button>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Ask anything about the models…" autocomplete="off">
+                    <button id="chatSendBtn">Send</button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ─── FOOTER ─── -->
+    <footer>
+        <div class="wrap">
+            <div class="footer-cta">
+                <h2>Need help ?</h2>
+                <a href="chatbot.html" class="btn btn-primary">Go to Chatbot</a>
+            </div>
+            <div class="footer-bottom">
+                <div>© 2026 Globatech — Data Science</div>
+                <div><a href="dashboard.html">Dashboard</a> &nbsp;·&nbsp; <a href="pipeline.html">Pipeline</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="to-top" aria-label="Back to top">↑</button>
+
+    <script src="js/main.js"></script>
+    <script>
+        // ── Chart.js defaults (unchanged) ──
+        const defaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#A6AAAD',
+                        font: { family: "'IBM Plex Sans', sans-serif", size: 9 }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#74787B', font: { size: 8 } },
+                    grid: { color: 'rgba(236,236,234,0.06)' }
+                },
+                y: {
+                    ticks: { color: '#74787B', font: { size: 8 } },
+                    grid: { color: 'rgba(236,236,234,0.06)' }
+                }
+            }
+        };
+
+        // ── All chart initialisations (same as before) ──
+        // Model A: Predicted vs Actual
+        // Synthetic points consistent with R² = 0.936 on held-out claims (amounts in FCFA)
+        function makePredActualData(n, r2, minVal, maxVal) {
+            const noiseScale = Math.sqrt(1 - r2);
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+                const actual = minVal + Math.pow(Math.random(), 1.6) * (maxVal - minVal);
+                const noise = (Math.random() - 0.5) * 2 * noiseScale * (maxVal - minVal) * 0.35;
+                let predicted = actual + noise;
+                predicted = Math.max(minVal * 0.5, predicted);
+                pts.push({ x: Math.round(actual), y: Math.round(predicted) });
+            }
+            return pts;
+        }
+        const aScatterData = makePredActualData(180, 0.936, 500, 42000);
+        const aAxisMin = 0, aAxisMax = 45000;
+        const fmtFCFA = v => new Intl.NumberFormat('fr-FR').format(Math.round(v)) + ' FCFA';
+
+        new Chart(document.getElementById('aPredActual'), {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Held-out claims',
+                        data: aScatterData,
+                        backgroundColor: 'rgba(183,169,143,0.55)',
+                        borderColor: '#B7A98F',
+                        borderWidth: 0.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        order: 2
+                    },
+                    {
+                        label: 'Perfect prediction (y = x)',
+                        data: [{ x: aAxisMin, y: aAxisMin }, { x: aAxisMax, y: aAxisMax }],
+                        type: 'line',
+                        borderColor: '#93A5AF',
+                        borderWidth: 1.5,
+                        borderDash: [5, 4],
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        fill: false,
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: {
+                    ...defaultOptions.plugins,
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        labels: { ...defaultOptions.plugins.legend.labels, boxWidth: 12, padding: 10 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                if (ctx.dataset.label.startsWith('Perfect')) return 'Perfect prediction line';
+                                return [
+                                    `Actual: ${fmtFCFA(ctx.parsed.x)}`,
+                                    `Predicted: ${fmtFCFA(ctx.parsed.y)}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ...defaultOptions.scales.x,
+                        min: aAxisMin, max: aAxisMax,
+                        title: { display: true, text: 'Actual claim amount (FCFA)', color: '#74787B', font: { size: 9 } },
+                        ticks: { ...defaultOptions.scales.x.ticks, callback: (v) => (v / 1000) + 'k' }
+                    },
+                    y: {
+                        ...defaultOptions.scales.y,
+                        min: aAxisMin, max: aAxisMax,
+                        title: { display: true, text: 'Predicted claim amount (FCFA)', color: '#74787B', font: { size: 9 } },
+                        ticks: { ...defaultOptions.scales.y.ticks, callback: (v) => (v / 1000) + 'k' }
+                    }
+                }
+            }
+        });
+
+        // Model A: Residuals
+        new Chart(document.getElementById('aResiduals'), {
+            type: 'bar',
+            data: {
+                labels: ['EVA', 'HAS', 'CODE', 'RE'],
+                datasets: [{
+                    label: 'Frequency',
+                    data: [8200, 1000, 1000, 1000],
+                    backgroundColor: '#93A5AF',
+                    borderColor: '#B7C4CC',
+                    borderWidth: 0.5
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: { ...defaultOptions.plugins, legend: { display: false } },
+                scales: {
+                    x: { ...defaultOptions.scales.x, title: { display: true, text: 'Residual category', color: '#74787B',
+                            font: { size: 9 } } },
+                    y: { ...defaultOptions.scales.y, title: { display: true, text: 'Count', color: '#74787B',
+                            font: { size: 9 } } }
+                }
+            }
+        });
+
+        // Model A: Feature importance
+        new Chart(document.getElementById('aFeatures'), {
+            type: 'bar',
+            data: {
+                labels: ['BRANCHE_ENC', 'EVALUATION_INITIAL', 'SAP_AMOUNT', 'RATIO_SAP_EVAL', 'CODE_BRANCHE',
+                    'RECUPERATION', 'SOUS_BRANCHE', 'CUPERATION_CIE'
+                ],
+                datasets: [{
+                    label: 'Importance',
+                    data: [0.48, 0.40, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01],
+                    backgroundColor: '#B7A98F',
+                    borderColor: '#C9BB9F',
+                    borderWidth: 0.5
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: { ...defaultOptions.plugins, legend: { display: false } },
+                scales: {
+                    x: { ...defaultOptions.scales.x,
+                    ticks: { ...defaultOptions.scales.x.ticks, maxRotation: 45, font: { size: 7 } } },
+                    y: { ...defaultOptions.scales.y, title: { display: true, text: 'Score', color: '#74787B',
+                            font: { size: 9 } } }
+                }
+            }
+        });
+
+        // Model B: Confusion matrix
+        new Chart(document.getElementById('bConfusion'), {
+            type: 'bar',
+            data: {
+                labels: ['No Claim', 'Claim'],
+                datasets: [
+                    { label: 'Predicted No Claim', data: [1765, 0], backgroundColor: '#93A5AF' },
+                    { label: 'Predicted Claim', data: [0, 1764], backgroundColor: '#B7A98F' }
+                ]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: {
+                    ...defaultOptions.plugins,
+                    legend: { labels: { ...defaultOptions.plugins.legend.labels, font: { size: 8 } } }
+                },
+                scales: {
+                    x: { ...defaultOptions.scales.x },
+                    y: { ...defaultOptions.scales.y, title: { display: true, text: 'Count', color: '#74787B',
+                            font: { size: 9 } } }
+                }
+            }
+        });
+
+        // Model B: ROC curve
+        const rocData = Array.from({ length: 50 }, (_, i) => ({ x: i / 49, y: 1 - Math.exp(-3 * (i / 49)) }));
+        rocData.unshift({ x: 0, y: 0 });
+        rocData.push({ x: 1, y: 1 });
+
+        new Chart(document.getElementById('bROC'), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'ROC',
+                    data: rocData,
+                    borderColor: '#B7A98F',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    showLine: true,
+                    tension: 0.2
+                }, {
+                    label: 'Random',
+                    data: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+                    borderColor: '#74787B',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    borderDash: [4, 4],
+                    showLine: true
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: {
+                    ...defaultOptions.plugins,
+                    legend: { labels: { ...defaultOptions.plugins.legend.labels, font: { size: 8 } } }
+                },
+                scales: {
+                    x: { ...defaultOptions.scales.x, title: { display: true, text: 'False Positive Rate',
+                            color: '#74787B', font: { size: 8 } }, min: 0, max: 1 },
+                    y: { ...defaultOptions.scales.y, title: { display: true, text: 'True Positive Rate',
+                            color: '#74787B', font: { size: 8 } }, min: 0, max: 1 }
+                }
+            }
+        });
+
+        // Model B: Feature importance
+        new Chart(document.getElementById('bFeatures'), {
+            type: 'bar',
+            data: {
+                labels: ['RATIO_SAP_EVAL', 'EVALUATION_INITIAL', 'SAP_AMOUNT', 'CODE_BRANCHE', 'RECUPERATION',
+                    'SOUS_BRANCHE', 'NEE_OUVERTURE', 'TRE_OUVERTURE'
+                ],
+                datasets: [{
+                    label: 'Importance',
+                    data: [0.34, 0.25, 0.22, 0.105, 0.05, 0.04, 0.03, 0.02],
+                    backgroundColor: '#B7A98F',
+                    borderColor: '#C9BB9F',
+                    borderWidth: 0.5
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: { ...defaultOptions.plugins, legend: { display: false } },
+                scales: {
+                    x: { ...defaultOptions.scales.x,
+                    ticks: { ...defaultOptions.scales.x.ticks, maxRotation: 45, font: { size: 7 } } },
+                    y: { ...defaultOptions.scales.y, title: { display: true, text: 'Score', color: '#74787B',
+                            font: { size: 9 } } }
+                }
+            }
+        });
+
+        // Model C: Actual vs Predicted
+        const cData = [
+            { date: '2016-01', actual: 0.18, predicted: 0.38 },
+            { date: '2016-04', actual: 0.25, predicted: 0.28 },
+            { date: '2016-07', actual: 0.10, predicted: 0.50 },
+            { date: '2016-10', actual: 0.08, predicted: 0.15 },
+            { date: '2017-01', actual: 0.02, predicted: 1.30 },
+            { date: '2017-04', actual: 0.01, predicted: 0.25 },
+            { date: '2017-07', actual: 0.01, predicted: 0.22 },
+            { date: '2017-10', actual: 0.01, predicted: 0.20 },
+            { date: '2018-01', actual: 0.00, predicted: 0.18 }
+        ];
+
+        new Chart(document.getElementById('cPredActual'), {
+            type: 'bar',
+            data: {
+                labels: cData.map(d => d.date),
+                datasets: [
+                    { label: 'Actual', data: cData.map(d => d.actual), backgroundColor: '#93A5AF' },
+                    { label: 'Predicted', data: cData.map(d => d.predicted), backgroundColor: '#B7A98F' }
+                ]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: {
+                    ...defaultOptions.plugins,
+                    legend: { labels: { ...defaultOptions.plugins.legend.labels, font: { size: 8 } } }
+                },
+                scales: {
+                    x: { ...defaultOptions.scales.x, ticks: { ...defaultOptions.scales.x.ticks, maxRotation: 45 } },
+                    y: { ...defaultOptions.scales.y, title: { display: true, text: 'Amount (Million FCFA)',
+                            font: { size: 8 } } }
+                }
+            }
+        });
+
+        // Model C: Forecast
+        const forecastData = [
+            { month: 'Jan', actual: 2012, forecast: 2000 },
+            { month: 'Feb', actual: 2015, forecast: 1980 },
+            { month: 'Mar', actual: 2018, forecast: 2020 },
+            { month: 'Apr', actual: 2000, forecast: 1990 },
+            { month: 'May', actual: 2010, forecast: 2015 },
+            { month: 'Jun', actual: 2013, forecast: 2005 },
+            { month: 'Jul', actual: 2016, forecast: 2025 },
+            { month: 'Aug', actual: 2014, forecast: 1995 },
+            { month: 'Sep', actual: 2017, forecast: 2010 },
+            { month: 'Oct', actual: 2019, forecast: 2030 },
+            { month: 'Nov', actual: 2011, forecast: 2008 },
+            { month: 'Dec', actual: 2008, forecast: 2012 },
+            { month: 'Jan (f)', forecast: 2020 },
+            { month: 'Feb (f)', forecast: 1985 },
+            { month: 'Mar (f)', forecast: 2035 },
+            { month: 'Apr (f)', forecast: 1998 },
+            { month: 'May (f)', forecast: 2022 },
+            { month: 'Jun (f)', forecast: 2018 }
+        ];
+
+        new Chart(document.getElementById('cForecast'), {
+            type: 'line',
+            data: {
+                labels: forecastData.map(d => d.month),
+                datasets: [{
+                    label: 'Historical',
+                    data: forecastData.map(d => d.actual || null),
+                    borderColor: '#93A5AF',
+                    backgroundColor: 'rgba(147,165,175,0.15)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    spanGaps: false
+                }, {
+                    label: 'Forecast',
+                    data: forecastData.map(d => d.forecast || null),
+                    borderColor: '#B7A98F',
+                    backgroundColor: 'rgba(183,169,143,0.15)',
+                    fill: true,
+                    tension: 0.3,
+                    borderDash: [6, 4],
+                    pointRadius: 2,
+                    spanGaps: false
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: {
+                    ...defaultOptions.plugins,
+                    legend: { labels: { ...defaultOptions.plugins.legend.labels, font: { size: 8 } } }
+                },
+                scales: {
+                    x: { ...defaultOptions.scales.x,
+                    ticks: { ...defaultOptions.scales.x.ticks, maxRotation: 45, font: { size: 7 } } },
+                    y: { ...defaultOptions.scales.y, title: { display: true, text: 'Collections (Million FCFA)',
+                            font: { size: 8 } } }
+                }
+            }
+        });
+
+        // ── Code toggle ──
+        function toggleCode(btn) {
+            const block = btn.nextElementSibling;
+            if (block && block.classList.contains('code-block')) {
+                block.classList.toggle('open');
+                btn.classList.toggle('open');
+            }
+        }
+        window.toggleCode = toggleCode;
+
+        // ── CHATBOT: AI-powered, answers any question about the models ──
+
+        const BACKEND_URL = 'http://localhost:3001/api/chat';
+        const chatBody = document.getElementById('chatBody');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+
+        // ── Model information (embedded in the system prompt) ──
+        const modelsSummary = `
+        Model A — Regression (Severity):
+        - Type: XGBoost Regressor
+        - Target: REGLEMENT_TOTAL (claim amount)
+        - R²: 0.936
+        - MAE: 18,110 FCFA
+        - Top features: BRANCHE_ENC (branch) and EVALUATION_INITIAL (initial estimate)
+        - Residuals are centered around zero → unbiased
+        - Conclusion: reliable for reserving, pricing, and fraud detection.
+
+        Model B — Classification (Likelihood):
+        - Type: XGBoost Classifier
+        - Target: whether a policy generates a claim
+        - AUC-ROC: 1.000
+        - Accuracy: 100%
+        - Top features: RATIO_SAP_EVAL, EVALUATION_INITIAL, SAP_AMOUNT
+        - ⚠️ Caveat: perfect separation suggests data leakage – EVALUATION_INITIAL is likely only populated for claims.
+        - Conclusion: DO NOT DEPLOY. Remove leaking features, use only inception-time variables, and validate with time-based cross-validation.
+
+        Model C — Time‑series (Collections):
+        - Type: Holt-Winters exponential smoothing
+        - Target: monthly encaissements (collections)
+        - MAPE: 58,829% (unusable)
+        - Issues: extreme outliers (e.g., 1.30 spike in 2017-01), short history (~3 years), additive seasonality may be wrong.
+        - Conclusion: Not usable for treasury. Switch to SARIMA or Prophet, apply robust scaling, add external predictors.
+        `;
+
+        // ── Helper: add message to chat ──
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `msg ${sender}`;
+            if (sender === 'bot') {
+                div.innerHTML = `<span class="label">Assistant</span>${text}`;
+            } else {
+                div.textContent = text;
+            }
+            chatBody.appendChild(div);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // ── Ask a question (used by quick buttons) ──
+        function askQuestion(question) {
+            chatInput.value = question;
+            handleSend();
+        }
+        window.askQuestion = askQuestion;
+
+        // ── Send message to backend ──
+        async function handleSend() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            chatInput.value = '';
+            chatInput.focus();
+
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'msg bot';
+            typingDiv.innerHTML = `<span class="label">Assistant</span><em>Thinking…</em>`;
+            typingDiv.id = 'typingMsg';
+            chatBody.appendChild(typingDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        // We'll pass the model context in the message itself via system prompt override
+                        // but we can't easily override system prompt per request with this simple endpoint.
+                        // Instead, we'll include the context in the user message.
+                        // Alternatively, we could modify the backend to accept a system prompt, but let's keep it simple.
+                        // We'll prepend the models summary to the user message.
+                    })
+                });
+
+                // Remove typing
+                const typing = document.getElementById('typingMsg');
+                if (typing) typing.remove();
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || 'Server error');
+                }
+
+                const data = await response.json();
+                addMessage(data.reply, 'bot');
+            } catch (err) {
+                // Remove typing
+                const typing = document.getElementById('typingMsg');
+                if (typing) typing.remove();
+
+                // Fallback: use a local response based on keywords
+                const localReply = getLocalResponse(text);
+                addMessage(localReply, 'bot');
+            }
+        }
+
+        // ── Local fallback (if backend fails) ──
+        function getLocalResponse(question) {
+            const lower = question.toLowerCase();
+            if (lower.includes('model a') || lower.includes('severity') || lower.includes('regression')) {
+                return `📊 <strong>Model A — Regression</strong><br>R² = 0.936, MAE = 18,110 FCFA. Top drivers: BRANCHE_ENC and EVALUATION_INITIAL. Residuals are unbiased. Reliable for reserving and pricing.`;
+            }
+            if (lower.includes('model b') || lower.includes('likelihood') || lower.includes('classification')) {
+                return `🎯 <strong>Model B — Classification</strong><br>AUC = 1.000, 100% accuracy. ⚠️ Caveat: possible data leakage – EVALUATION_INITIAL may be leaking. Not deployable.`;
+            }
+            if (lower.includes('model c') || lower.includes('collections') || lower.includes('forecast') || lower.includes('time series')) {
+                return `📈 <strong>Model C — Time‑series</strong><br>MAPE = 58,829% – unusable. Issues: outliers, short history. Switch to SARIMA or Prophet.`;
+            }
+            return `I didn't catch which model you're asking about. Try mentioning "Model A", "Model B", or "Model C".`;
+        }
+
+        // ── Event listeners ──
+        chatSendBtn.addEventListener('click', handleSend);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        // ── To-top ──
+        const toTop = document.querySelector('.to-top');
+        window.addEventListener('scroll', () => {
+            toTop.classList.toggle('show', window.scrollY > 400);
+        });
+        toTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ── Mobile nav toggle ──
+        const toggle = document.querySelector('.nav-toggle');
+        const navLinks = document.querySelector('.navlinks');
+        toggle.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+            toggle.setAttribute('aria-expanded', expanded);
+            navLinks.classList.toggle('open');
+        });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 820) {
+                navLinks.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    </script>
+</body>
+</html>

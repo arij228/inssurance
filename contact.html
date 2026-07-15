@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Globatech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand">Globatech <span class="mark">DS</span></a>
+    <div class="navlinks">
+      <a href="index.html">Home</a>
+      <a href="overview.html">Overview</a>
+      <a href="pipeline.html">Pipeline</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="models.html">Models</a>
+      <a href="insights.html">Insights</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"></button>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="wrap">
+    <div class="eyebrow">Contact</div>
+    <h1>Let's talk about your data.</h1>
+    <p class="page-sub">Questions about the pipeline, the models, or building something similar for your own warehouse — reach out.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <p>Globatech's data science practice builds ETL pipelines, warehouses, and ML model suites end to end — from raw source tables to a report someone actually uses.</p>
+        <div class="contact-detail"><span>Email</span><a href="mailto:hello@globatech.example">hello@globatech.example</a></div>
+        <div class="contact-detail"><span>Location</span><span>Tunis, Tunisia</span></div>
+        <div class="contact-detail"><span>Response time</span><span>Within 2 business days</span></div>
+      </div>
+
+      <form class="contact-form reveal" id="contactForm" novalidate>
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" autocomplete="name">
+          <div class="field-error" id="nameError"></div>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email">
+          <div class="field-error" id="emailError"></div>
+        </div>
+        <div class="field">
+          <label for="topic">Topic</label>
+          <select id="topic" name="topic">
+            <option value="general">General inquiry</option>
+            <option value="pipeline">ETL / warehouse build</option>
+            <option value="models">ML model work</option>
+            <option value="dashboard">Power BI reporting</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message"></textarea>
+          <div class="field-error" id="messageError"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Send message</button>
+        <div class="form-status" id="formStatus"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-bottom">
+      <div>© 2026 Globatech — Data Science</div>
+      <div><a href="index.html">Home</a> &nbsp;·&nbsp; <a href="dashboard.html">Dashboard</a> &nbsp;·&nbsp; <a href="models.html">Models</a></div>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" aria-label="Back to top">↑</button>
+
+<script src="js/main.js"></script>
+<script src="js/contact.js"></script>
+</body>
+</html>
