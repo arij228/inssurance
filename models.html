@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* ── Styles (unchanged) ── */
+        /* ── All existing styles (unchanged) ── */
         .models-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -691,7 +691,6 @@
 
         // ── All chart initialisations (same as before) ──
         // Model A: Predicted vs Actual
-        // Synthetic points consistent with R² = 0.936 on held-out claims (amounts in FCFA)
         function makePredActualData(n, r2, minVal, maxVal) {
             const noiseScale = Math.sqrt(1 - r2);
             const pts = [];
@@ -1027,15 +1026,28 @@
         }
         window.toggleCode = toggleCode;
 
-        // ── CHATBOT: AI-powered, answers any question about the models ──
+        // ──────────────────────────────────────────────────────────────────────
+        //  CHATBOT — same style as the dedicated chatbot page, but personalised
+        //  to answer any question about the models.
+        // ──────────────────────────────────────────────────────────────────────
 
-        const BACKEND_URL = 'http://localhost:3001/api/chat';
-        const chatBody = document.getElementById('chatBody');
-        const chatInput = document.getElementById('chatInput');
-        const chatSendBtn = document.getElementById('chatSendBtn');
+        const BACKEND_URL = '/api/chat';
 
-        // ── Model information (embedded in the system prompt) ──
-        const modelsSummary = `
+        // ── Per‑visit session id ──
+        function getSessionId() {
+            let id = sessionStorage.getItem('gt_chat_session');
+            if (!id) {
+                id = (crypto.randomUUID ? crypto.randomUUID() : 'sess-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+                sessionStorage.setItem('gt_chat_session', id);
+            }
+            return id;
+        }
+
+        // ── Model context (injected into every user message) ──
+        const MODELS_CONTEXT = `
+        You are a specialised assistant that answers questions about three specific models used in our insurance analytics pipeline.
+        Here is detailed information about each model:
+
         Model A — Regression (Severity):
         - Type: XGBoost Regressor
         - Target: REGLEMENT_TOTAL (claim amount)
@@ -1062,7 +1074,12 @@
         - Conclusion: Not usable for treasury. Switch to SARIMA or Prophet, apply robust scaling, add external predictors.
         `;
 
-        // ── Helper: add message to chat ──
+        // ── DOM refs ──
+        const chatBody = document.getElementById('chatBody');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+
+        // ── Helper: add message ──
         function addMessage(text, sender) {
             const div = document.createElement('div');
             div.className = `msg ${sender}`;
@@ -1075,7 +1092,7 @@
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        // ── Ask a question (used by quick buttons) ──
+        // ── Ask a question (quick buttons) ──
         function askQuestion(question) {
             chatInput.value = question;
             handleSend();
@@ -1100,29 +1117,25 @@
             chatBody.scrollTop = chatBody.scrollHeight;
 
             try {
+                // Prepend model context to the user message
+                const fullMessage = `${MODELS_CONTEXT}\n\nUser question: ${text}`;
+
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: text,
-                        // We'll pass the model context in the message itself via system prompt override
-                        // but we can't easily override system prompt per request with this simple endpoint.
-                        // Instead, we'll include the context in the user message.
-                        // Alternatively, we could modify the backend to accept a system prompt, but let's keep it simple.
-                        // We'll prepend the models summary to the user message.
-                    })
+                    body: JSON.stringify({ message: fullMessage, sessionId: getSessionId() })
                 });
 
                 // Remove typing
                 const typing = document.getElementById('typingMsg');
                 if (typing) typing.remove();
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.error || 'Server error');
+                    throw new Error(data.error || 'Server error');
                 }
 
-                const data = await response.json();
                 addMessage(data.reply, 'bot');
             } catch (err) {
                 // Remove typing
@@ -1135,7 +1148,7 @@
             }
         }
 
-        // ── Local fallback (if backend fails) ──
+        // ── Local fallback ──
         function getLocalResponse(question) {
             const lower = question.toLowerCase();
             if (lower.includes('model a') || lower.includes('severity') || lower.includes('regression')) {
