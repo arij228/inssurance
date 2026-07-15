@@ -2,7 +2,6 @@
   "name": "globatech-uab-iardt-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Globatech UAB-IARDT insurance analytics case study — static site + Netlify Function chatbot backend",
   "dependencies": {
     "groq-sdk": "^0.7.0",
     "@supabase/supabase-js": "^2.45.0"
