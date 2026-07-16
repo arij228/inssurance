@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chatbot — Globatech</title>
+    <title>Chatbot — Insurance BI Assistant</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
     <style>
-        /* ── Chatbot styles (same as before) ── */
+        /* ── Chatbot styles ── */
         .chatbot-wrapper {
             background: #ffffff;
             border-radius: 20px;
@@ -18,7 +18,7 @@
             margin: 2.5rem 0 2rem 0;
             display: flex;
             flex-direction: column;
-            height: 560px;
+            height: 600px;
         }
         .chat-header {
             padding: 1.2rem 1.8rem;
@@ -33,12 +33,12 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #b7a98f;
+            background: #1e3a5f;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            color: #1e1b18;
+            color: #fff;
             font-weight: 600;
             font-family: 'Newsreader', serif;
             flex-shrink: 0;
@@ -54,8 +54,9 @@
         }
         .chat-header-info p {
             font-size: 0.75rem;
-            color: #7a6c5c;
+            color: #1e3a5f;
             margin: 0;
+            font-weight: 500;
         }
         .chat-status {
             display: flex;
@@ -73,8 +74,15 @@
             animation: pulse-dot 1.6s ease-in-out infinite;
         }
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.7); }
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.7);
+            }
         }
         .chat-messages {
             flex: 1;
@@ -97,7 +105,7 @@
             border-radius: 4px;
         }
         .msg {
-            max-width: 82%;
+            max-width: 84%;
             padding: 0.7rem 1.2rem;
             border-radius: 16px;
             font-size: 0.9rem;
@@ -113,13 +121,22 @@
         }
         .msg-user {
             align-self: flex-end;
-            background: #b7a98f;
-            color: #1e1b18;
+            background: #1e3a5f;
+            color: #ffffff;
             border-bottom-right-radius: 4px;
         }
+        .msg-user .msg-label {
+            color: rgba(255, 255, 255, 0.6);
+        }
         @keyframes msgIn {
-            0% { opacity: 0; transform: translateY(8px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .msg .msg-label {
             font-size: 0.6rem;
@@ -129,13 +146,17 @@
             opacity: 0.6;
             margin-bottom: 0.1rem;
         }
-        .msg-bot .msg-label { color: #5f5345; }
-        .msg-user .msg-label { color: #4d4238; }
-        .msg ul, .msg ol {
+        .msg-bot .msg-label {
+            color: #5f5345;
+        }
+        .msg ul,
+        .msg ol {
             margin: 0.3rem 0 0 1.2rem;
             padding: 0;
         }
-        .msg li { margin-bottom: 0.15rem; }
+        .msg li {
+            margin-bottom: 0.15rem;
+        }
         .msg code {
             font-family: 'IBM Plex Mono', monospace;
             background: rgba(30, 27, 24, 0.08);
@@ -143,8 +164,26 @@
             border-radius: 4px;
             font-size: 0.8rem;
         }
-        .msg strong { font-weight: 600; }
-        .msg em { font-style: italic; }
+        .msg strong {
+            font-weight: 600;
+        }
+        .msg em {
+            font-style: italic;
+        }
+        .msg .highlight {
+            background: rgba(30, 58, 95, 0.08);
+            padding: 0.05rem 0.3rem;
+            border-radius: 3px;
+        }
+        .msg .pill {
+            display: inline-block;
+            background: rgba(30, 58, 95, 0.12);
+            padding: 0.05rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin: 0.1rem 0.15rem;
+        }
 
         .chat-typing {
             align-self: flex-start;
@@ -164,11 +203,21 @@
             display: inline-block;
             animation: typingBounce 1.2s ease-in-out infinite;
         }
-        .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
-        .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+        .chat-typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .chat-typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
         @keyframes typingBounce {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-6px); }
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-6px);
+            }
         }
 
         .chat-input-area {
@@ -194,8 +243,8 @@
             min-width: 140px;
         }
         .chat-input-area input:focus {
-            border-color: #b7a98f;
-            box-shadow: 0 0 0 3px rgba(183, 169, 143, 0.15);
+            border-color: #1e3a5f;
+            box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
         }
         .chat-input-area input::placeholder {
             color: #a69784;
@@ -204,8 +253,8 @@
             padding: 0.7rem 1.6rem;
             border-radius: 40px;
             border: none;
-            background: #b7a98f;
-            color: #1e1b18;
+            background: #1e3a5f;
+            color: #fff;
             font-weight: 600;
             font-size: 0.9rem;
             cursor: pointer;
@@ -213,10 +262,14 @@
             white-space: nowrap;
             font-family: 'IBM Plex Sans', sans-serif;
         }
-        .chat-input-area button:hover { background: #c9bb9f; }
-        .chat-input-area button:active { transform: scale(0.96); }
+        .chat-input-area button:hover {
+            background: #2a4e7a;
+        }
+        .chat-input-area button:active {
+            transform: scale(0.96);
+        }
         .chat-input-area button:disabled {
-            background: #d5ccc0;
+            background: #8a9bb0;
             cursor: not-allowed;
             transform: none;
         }
@@ -230,41 +283,90 @@
             gap: 0.5rem;
         }
         .chat-suggestions .suggest-chip {
-            padding: 0.25rem 1rem;
+            padding: 0.3rem 1.2rem;
             border-radius: 40px;
             background: #ede8e1;
             font-size: 0.75rem;
-            color: #4d4238;
+            color: #1e1b18;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: background 0.2s, transform 0.1s, border-color 0.2s;
             border: 1px solid transparent;
             white-space: nowrap;
             font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 500;
         }
         .chat-suggestions .suggest-chip:hover {
             background: #ddd6cc;
+            border-color: #1e3a5f;
             transform: translateY(-1px);
         }
         .chat-suggestions .suggest-chip:active {
             transform: scale(0.96);
         }
+        .chat-suggestions .suggest-chip .chip-icon {
+            margin-right: 0.3rem;
+            opacity: 0.7;
+        }
 
         @media (max-width: 600px) {
-            .chatbot-wrapper { height: 480px; border-radius: 16px; }
-            .chat-messages { padding: 1rem 1.2rem; }
-            .chat-input-area { padding: 0.8rem 1.2rem; flex-wrap: wrap; }
-            .chat-input-area input { flex: 1 1 100%; }
-            .chat-input-area button { flex: 0 0 auto; padding: 0.6rem 1.4rem; }
-            .msg { max-width: 92%; font-size: 0.85rem; padding: 0.6rem 1rem; }
-            .chat-suggestions { padding: 0.4rem 1.2rem 0.8rem 1.2rem; gap: 0.4rem; }
-            .chat-suggestions .suggest-chip { font-size: 0.7rem; padding: 0.2rem 0.8rem; }
-            .chat-header { padding: 0.9rem 1.2rem; flex-wrap: wrap; }
-            .chat-avatar { width: 34px; height: 34px; font-size: 1rem; }
-            .chat-header-info h3 { font-size: 0.9rem; }
+            .chatbot-wrapper {
+                height: 520px;
+                border-radius: 16px;
+            }
+            .chat-messages {
+                padding: 1rem 1.2rem;
+            }
+            .chat-input-area {
+                padding: 0.8rem 1.2rem;
+                flex-wrap: wrap;
+            }
+            .chat-input-area input {
+                flex: 1 1 100%;
+            }
+            .chat-input-area button {
+                flex: 0 0 auto;
+                padding: 0.6rem 1.4rem;
+            }
+            .msg {
+                max-width: 92%;
+                font-size: 0.85rem;
+                padding: 0.6rem 1rem;
+            }
+            .chat-suggestions {
+                padding: 0.4rem 1.2rem 0.8rem 1.2rem;
+                gap: 0.4rem;
+            }
+            .chat-suggestions .suggest-chip {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.8rem;
+            }
+            .chat-header {
+                padding: 0.9rem 1.2rem;
+                flex-wrap: wrap;
+            }
+            .chat-avatar {
+                width: 34px;
+                height: 34px;
+                font-size: 1rem;
+            }
+            .chat-header-info h3 {
+                font-size: 0.9rem;
+            }
+            .chat-header-info p {
+                font-size: 0.7rem;
+            }
         }
         @media (max-width: 400px) {
-            .chatbot-wrapper { height: 420px; }
-            .chat-suggestions .suggest-chip { font-size: 0.65rem; padding: 0.15rem 0.6rem; }
+            .chatbot-wrapper {
+                height: 460px;
+            }
+            .chat-suggestions .suggest-chip {
+                font-size: 0.65rem;
+                padding: 0.15rem 0.6rem;
+            }
+            .chat-suggestions .suggest-chip .chip-icon {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -290,9 +392,11 @@
     <!-- ─── HEADER ─── -->
     <header class="page-header">
         <div class="wrap">
-            <div class="eyebrow">05 — Chatbot</div>
-            <h1>Ask the Data Science Assistant.</h1>
-            <p class="page-sub">AI‑powered chatbot that answers any question about data science, BI, dashboards, data mining, machine learning, and more.</p>
+            <div class="eyebrow">05 — Insurance BI Assistant</div>
+            <h1>Ask the Insurance Data Science Expert.</h1>
+            <p class="page-sub">
+                <strong>Complete BI Solution for Insurance Data Analytics</strong> — Ask about claims dashboards, fraud detection, policy analytics, ETL pipelines, and more.
+            </p>
         </div>
     </header>
 
@@ -301,20 +405,29 @@
         <div class="wrap">
             <div class="chatbot-wrapper">
                 <div class="chat-header">
-                    <div class="chat-avatar">✦</div>
+                    <div class="chat-avatar">🛡️</div>
                     <div class="chat-header-info">
-                        <h3>Globatech Assistant</h3>
-                        <p>Data Science &amp; BI expert</p>
+                        <h3>Insurance Analytics Assistant</h3>
+                        <p>BI &amp; Data Science for Insurance</p>
                     </div>
                     <div class="chat-status">
-                        <span class="dot"></span> <span id="statusLabel">✅ AI ready</span>
+                        <span class="dot"></span> <span id="statusLabel">Ready</span>
                     </div>
                 </div>
 
                 <div class="chat-messages" id="chatMessages">
                     <div class="msg msg-bot">
                         <div class="msg-label">Assistant</div>
-                        👋 Hi there! I'm your AI data assistant. Ask me anything about <strong>data science, BI, dashboards, data mining, machine learning, SQL, Python, Power BI, ETL, or insurance analytics</strong> — I'll give you a thoughtful, intelligent answer.
+                        👋 Welcome! I'm your AI expert for <strong>insurance data analytics &amp; BI</strong>.<br /><br />
+                        Ask me about:
+                        <span class="pill">claims dashboards</span>
+                        <span class="pill">fraud detection</span>
+                        <span class="pill">policy analytics</span>
+                        <span class="pill">ETL pipelines</span>
+                        <span class="pill">Power BI</span>
+                        <span class="pill">ML for insurance</span>
+                        <br /><br />
+                        I'm built to help you build a <strong>Complete BI Solution for Insurance Data Analytics</strong> — from data ingestion to dashboarding and machine learning.
                     </div>
                 </div>
 
@@ -323,16 +436,28 @@
                 </div>
 
                 <div class="chat-suggestions" id="suggestions">
-                    <span class="suggest-chip" data-question="What is data science?">What is data science?</span>
-                    <span class="suggest-chip" data-question="How do I build a dashboard?">How to build a dashboard?</span>
-                    <span class="suggest-chip" data-question="What is Power BI?">What is Power BI?</span>
-                    <span class="suggest-chip" data-question="What is unsupervised learning?">What is unsupervised learning?</span>
-                    <span class="suggest-chip" data-question="SQL vs NoSQL: what's the difference?">SQL vs NoSQL</span>
-                    <span class="suggest-chip" data-question="Explain ETL in simple terms">Explain ETL</span>
+                    <span class="suggest-chip" data-question="What are the key use cases for data science in insurance?">
+                        <span class="chip-icon">📊</span> Use cases for data science in insurance
+                    </span>
+                    <span class="suggest-chip" data-question="How do I design a claims performance dashboard?">
+                        <span class="chip-icon">📈</span> Claims dashboard design
+                    </span>
+                    <span class="suggest-chip" data-question="How can Power BI unlock insurance data insights?">
+                        <span class="chip-icon">🔍</span> Power BI for insurance
+                    </span>
+                    <span class="suggest-chip" data-question="How does unsupervised learning detect insurance fraud?">
+                        <span class="chip-icon">🕵️</span> Unsupervised fraud detection
+                    </span>
+                    <span class="suggest-chip" data-question="SQL vs NoSQL: which is better for insurance data?">
+                        <span class="chip-icon">🗄️</span> SQL vs NoSQL for insurance
+                    </span>
+                    <span class="suggest-chip" data-question="What does an ETL pipeline look like for insurance analytics?">
+                        <span class="chip-icon">⚙️</span> ETL for insurance data
+                    </span>
                 </div>
 
                 <div class="chat-input-area">
-                    <input type="text" id="chatInput" placeholder="Ask me anything about data..." autofocus />
+                    <input type="text" id="chatInput" placeholder="Ask about insurance BI, dashboards, fraud, ETL…" autofocus />
                     <button id="sendBtn">Send</button>
                 </div>
             </div>
@@ -343,11 +468,11 @@
     <footer>
         <div class="wrap">
             <div class="footer-cta">
-                <h2>Want this pipeline built for your data?</h2>
+                <h2>Build your insurance BI solution with us.</h2>
                 <a href="index.html" class="btn btn-primary">Back to home</a>
             </div>
             <div class="footer-bottom">
-                <div>© 2026 Globatech — Data Science</div>
+                <div>© 2026 Globatech — Insurance Data Analytics</div>
                 <div>
                     <a href="index.html">Home</a> &nbsp;·&nbsp;
                     <a href="models.html">Models</a> &nbsp;·&nbsp;
@@ -361,16 +486,125 @@
 
     <script>
         // ──────────────────────────────────────────────────────────────────────
-        //  🔐 SECURE: API keys (Groq + Supabase) live on the backend only.
-        //  In production this calls the Netlify Function at /api/chat, which
-        //  is redirected to /.netlify/functions/chat (see netlify.toml).
-        //  Locally, run `netlify dev` and this same relative path just works.
+        //  INSURANCE-SPECIFIC CHATBOT with client-side responses for
+        //  common insurance BI questions + fallback to backend.
         // ──────────────────────────────────────────────────────────────────────
 
-const BACKEND_URL = '/api/chat';
+        const BACKEND_URL = '/api/chat';
 
-        // ── Per-visit session id, used only to group a conversation's turns
-        //    together in the chat_logs table — no personal data involved ──
+        // ── Insurance knowledge base (client-side responses) ──
+        const INSURANCE_FAQ = {
+            'what are the key use cases for data science in insurance?': `
+                <strong>Data science transforms insurance across the value chain.</strong><br /><br />
+                <strong>🔹 Claims analytics</strong> — Predict claim severity, detect fraud, and automate triage.<br />
+                <strong>🔹 Pricing &amp; underwriting</strong> — Build risk-based pricing models using telematics, IoT, and external data.<br />
+                <strong>🔹 Customer retention</strong> — Churn prediction, personalized cross-sell, and lifetime value modeling.<br />
+                <strong>🔹 Fraud detection</strong> — Unsupervised learning (clustering, anomaly detection) to flag suspicious claims.<br />
+                <strong>🔹 Operational efficiency</strong> — NLP for document processing, claims routing, and chatbot assistants.<br />
+                <strong>🔹 Reserving &amp; capital modeling</strong> — Stochastic models for IBNR reserves and solvency.<br /><br />
+                For a <strong>Complete BI Solution</strong>, you'd typically start with a claims dashboard, then layer on predictive models for fraud and severity.
+            `,
+
+            'how do i design a claims performance dashboard?': `
+                <strong>A great claims dashboard tells a story about operational health and risk.</strong><br /><br />
+                <strong>📊 Core KPIs to track:</strong><br />
+                • <strong>Volume</strong> — Claims received, open, closed, and backlog<br />
+                • <strong>Severity</strong> — Average claim amount, total loss incurred<br />
+                • <strong>Frequency</strong> — Claims per 1,000 policies, by region/line<br />
+                • <strong>Loss Ratio</strong> — Incurred losses ÷ earned premiums<br />
+                • <strong>Cycle Time</strong> — Average days from report to settlement<br />
+                • <strong>Fraud Rate</strong> — % of claims flagged &amp; confirmed fraud<br /><br />
+                <strong>📌 Visual design tips:</strong><br />
+                • Top: KPI cards (loss ratio, volume, severity)<br />
+                • Middle: Time-series (claims over 12 months) + heatmap by region<br />
+                • Bottom: Claim status breakdown (pie/bar) + top fraud categories<br />
+                • Add drill-downs by product line, state, and adjuster<br /><br />
+                Use <strong>Power BI</strong> or <strong>Tableau</strong> to connect to your data warehouse and build this interactively.
+            `,
+
+            'how can power bi unlock insurance data insights?': `
+                <strong>Power BI is a game‑changer for insurance data.</strong><br /><br />
+                <strong>🔹 Connect to any source</strong> — Policy admin systems, claims databases, CRM, and external data (weather, economic).<br />
+                <strong>🔹 DAX for insurance metrics</strong> — Write measures for loss ratio, paid-to-incurred, reserve adequacy, and more.<br />
+                <strong>🔹 Interactive dashboards</strong> — Filter by state, product line, adjuster, or date range with slicers.<br />
+                <strong>🔹 AI visuals</strong> — Use decomposition trees to understand drivers of claim severity.<br />
+                <strong>🔹 R &amp; Python integration</strong> — Run fraud detection models directly in Power BI.<br />
+                <strong>🔹 Row-level security</strong> — Restrict data by region or role (e.g., claims managers see only their team).<br /><br />
+                <strong>Pro tip:</strong> Build a <em>star schema</em> data model with a Claims fact table and Policy, Customer, and Date dimensions for optimal performance.
+            `,
+
+            'how does unsupervised learning detect insurance fraud?': `
+                <strong>Unsupervised learning finds fraud patterns without labeled data.</strong><br /><br />
+                <strong>🧠 Key techniques:</strong><br />
+                • <strong>Clustering (k-means, DBSCAN)</strong> — Groups claims by similarity; outliers (claims far from any cluster) are flagged for review.<br />
+                • <strong>Anomaly detection (Isolation Forest, Autoencoders)</strong> — Learns "normal" claim patterns; claims with high reconstruction error are suspicious.<br />
+                • <strong>Community detection</strong> — Builds a network of claimants, providers, and vehicles to find rings of coordinated fraud.<br /><br />
+                <strong>📋 Features to use:</strong><br />
+                Claim amount, policy tenure, time between accident and report, provider type, and geographic distance between parties.<br /><br />
+                <strong>⚠️ Important:</strong> Unsupervised methods generate <em>alerts</em> — not convictions. Always combine with human investigation and supervised models once you have labeled fraud cases.
+            `,
+
+            'sql vs nosql: which is better for insurance data?': `
+                <strong>It depends on the use case — most insurance BI solutions use both.</strong><br /><br />
+                <strong>🗄️ SQL (relational) — Best for:</strong><br />
+                • Policy and claims data with well-defined schemas<br />
+                • Complex aggregations (loss ratios, reserves, trend analysis)<br />
+                • ACID transactions (critical for financial data)<br />
+                • BI tools like Power BI, Tableau, and Looker<br />
+                • <strong>Examples:</strong> PostgreSQL, SQL Server, Oracle<br /><br />
+                <strong>📦 NoSQL — Best for:</strong><br />
+                • Unstructured data: claims documents, emails, call transcripts<br />
+                • High-volume event streams (telematics, IoT sensors)<br />
+                • Flexible schemas for evolving product data<br />
+                • Real-time fraud detection rules<br />
+                • <strong>Examples:</strong> MongoDB (documents), Elasticsearch (search), Cassandra (time-series)<br /><br />
+                <strong>🏆 The winning pattern:</strong> Use a SQL data warehouse as your <em>source of truth</em> for BI, and complement with NoSQL for document storage, search, and real-time streams.
+            `,
+
+            'what does an etl pipeline look like for insurance analytics?': `
+                <strong>An insurance ETL pipeline moves data from operational systems to your analytics warehouse.</strong><br /><br />
+                <strong>🔄 E — Extract:</strong><br />
+                • Policy admin system (policy details, coverage, premiums)<br />
+                • Claims management system (claim status, payments, reserves)<br />
+                • CRM (customer interactions, satisfaction scores)<br />
+                • Third-party data (weather, credit, geospatial)<br /><br />
+                <strong>🛠️ T — Transform:</strong><br />
+                • Data cleaning: handle missing values, standardize dates, deduplicate<br />
+                • Business logic: calculate loss ratio, age of claim, fraud risk score<br />
+                • Joins: combine policy, claim, and customer data into wide tables<br />
+                • Aggregations: daily, monthly, and quarterly summaries<br /><br />
+                <strong>📥 L — Load:</strong><br />
+                • Load into a star-schema data warehouse (e.g., Snowflake, Redshift, BigQuery)<br />
+                • Build aggregated tables for dashboard performance<br />
+                • Expose via semantic layer (e.g., Power BI dataset, LookML)<br /><br />
+                <strong>⚡ Best practices:</strong> Use incremental loading, monitor data quality, and version-control your transformations with tools like dbt.
+            `
+        };
+
+        // ── Normalize text for FAQ lookup ──
+        function normalizeKey(text) {
+            return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+        }
+
+        function findInsuranceAnswer(question) {
+            const normalized = normalizeKey(question);
+            // Try exact match
+            for (const [key, answer] of Object.entries(INSURANCE_FAQ)) {
+                if (normalizeKey(key) === normalized) {
+                    return answer;
+                }
+            }
+            // Try partial match (if question contains key phrase)
+            for (const [key, answer] of Object.entries(INSURANCE_FAQ)) {
+                const keyNormal = normalizeKey(key);
+                if (normalized.includes(keyNormal) || keyNormal.includes(normalized)) {
+                    return answer;
+                }
+            }
+            return null;
+        }
+
+        // ── Session ID ──
         function getSessionId() {
             let id = sessionStorage.getItem('gt_chat_session');
             if (!id) {
@@ -385,6 +619,7 @@ const BACKEND_URL = '/api/chat';
         const inputEl = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const typingEl = document.getElementById('typingIndicator');
+        const statusLabel = document.getElementById('statusLabel');
 
         // ── UI helpers ──
         function addMessage(text, sender) {
@@ -399,6 +634,7 @@ const BACKEND_URL = '/api/chat';
         function showTyping(show) {
             typingEl.style.display = show ? 'flex' : 'none';
             if (show) messagesEl.scrollTop = messagesEl.scrollHeight;
+            statusLabel.textContent = show ? '🤔 Thinking…' : '✅ Ready';
         }
 
         function setButtonsEnabled(enabled) {
@@ -406,7 +642,7 @@ const BACKEND_URL = '/api/chat';
             inputEl.disabled = !enabled;
         }
 
-        // ── Send message to backend ──
+        // ── Send message ──
         async function handleSend() {
             const text = inputEl.value.trim();
             if (!text) return;
@@ -417,6 +653,17 @@ const BACKEND_URL = '/api/chat';
             setButtonsEnabled(false);
             showTyping(true);
 
+            // 1. Check if we have a client-side insurance answer
+            const localAnswer = findInsuranceAnswer(text);
+            if (localAnswer) {
+                showTyping(false);
+                addMessage(localAnswer, 'bot');
+                setButtonsEnabled(true);
+                inputEl.focus();
+                return;
+            }
+
+            // 2. Fallback to backend
             try {
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
@@ -431,7 +678,13 @@ const BACKEND_URL = '/api/chat';
                 }
 
                 showTyping(false);
-                addMessage(data.reply, 'bot');
+                // If backend returns a generic reply, we can add a small note
+                let reply = data.reply;
+                if (!reply.toLowerCase().includes('insurance') && !reply.toLowerCase().includes('claim')) {
+                    reply +=
+                    `<br><br><em style="opacity:0.7;">💡 For insurance-specific questions, try asking about claims, dashboards, fraud, or ETL.</em>`;
+                }
+                addMessage(reply, 'bot');
             } catch (err) {
                 showTyping(false);
                 addMessage(

@@ -122,8 +122,12 @@
             font-family: var(--sans, 'IBM Plex Sans', sans-serif);
             font-size: 11px;
             letter-spacing: 0;
-            line-height: 1.5;
+            line-height: 1.6;
             padding: 10px 2px 0 2px;
+            color: var(--ink-dim);
+        }
+        .chart-caption-left strong {
+            color: var(--ink);
         }
         .chart-panel .chart-container canvas {
             width: 100% !important;
@@ -139,6 +143,18 @@
             border-top: 1px solid var(--line);
             margin-top: 8px;
             padding-top: 6px;
+        }
+        .chart-observation {
+            font-family: var(--sans);
+            font-size: 11.5px;
+            color: var(--ink-dim);
+            line-height: 1.6;
+            padding: 8px 4px 0 4px;
+            margin-top: 4px;
+            border-top: 1px dashed var(--line);
+        }
+        .chart-observation strong {
+            color: var(--ink);
         }
         .code-toggle {
             background: none;
@@ -468,17 +484,21 @@
                             <span class="cp-badge">R² = 0.936</span>
                         </div>
                         <div class="chart-container chart-container-lg"><canvas id="aPredActual"></canvas></div>
-                        <div class="chart-caption chart-caption-left">Each point is one held-out claim. The closer a point sits to the dashed line, the more exact the prediction — 93.6% of variance in claim amount is explained by the model.</div>
+                        <div class="chart-caption-left">
+                            <strong>Interpretation:</strong> The tight clustering around the diagonal indicates strong predictive power. However, note the slight upward bias for high‑value claims (actual > 35,000 FCFA) where the model tends to underpredict — this may be due to limited data in the tail. The R² of 0.936 confirms that 93.6% of variance is explained, but the MAE of 18,110 FCFA means average error is ~18k, which is reasonable for this range.
+                        </div>
                     </div>
 
                     <div class="chart-grid chart-grid-2">
                         <div class="chart-panel">
                             <div class="chart-container"><canvas id="aResiduals"></canvas></div>
                             <div class="chart-caption">Residuals distribution</div>
+                            <div class="chart-observation"><strong>Observation:</strong> Roughly symmetric around zero, with most errors within ±10k FCFA. Slight positive skew indicates occasional overpredictions. No obvious heteroscedasticity — errors are homoscedastic across the prediction range.</div>
                         </div>
                         <div class="chart-panel">
                             <div class="chart-container"><canvas id="aFeatures"></canvas></div>
                             <div class="chart-caption">Feature importance</div>
+                            <div class="chart-observation"><strong>Observation:</strong> <strong>BRANCHE_ENC</strong> (branch) alone contributes ~48% of predictive power, followed by <strong>EVALUATION_INITIAL</strong> (initial estimate) at 40%. This suggests branch‑specific risk factors and the initial assessment dominate final claim amount. Other features have marginal impact.</div>
                         </div>
                     </div>
 
@@ -525,14 +545,17 @@
                         <div class="chart-panel">
                             <div class="chart-container"><canvas id="bConfusion"></canvas></div>
                             <div class="chart-caption">Confusion matrix — 100% accuracy</div>
+                            <div class="chart-observation"><strong>Observation:</strong> 1,765 true negatives and 1,764 true positives — zero misclassifications. This perfect diagonal is highly suspicious and typically indicates data leakage (e.g., a feature that is only available after a claim has occurred).</div>
                         </div>
                         <div class="chart-panel">
                             <div class="chart-container"><canvas id="bROC"></canvas></div>
                             <div class="chart-caption">ROC curve — AUC = 1.000</div>
+                            <div class="chart-observation"><strong>Observation:</strong> AUC = 1.000 means the model perfectly separates positive and negative classes — again reflecting the same leakage. In practice, a perfect ROC curve is never achievable with real‑world predictive features.</div>
                         </div>
                         <div class="chart-panel">
                             <div class="chart-container"><canvas id="bFeatures"></canvas></div>
                             <div class="chart-caption">Feature importance</div>
+                            <div class="chart-observation"><strong>Observation:</strong> <strong>RATIO_SAP_EVAL</strong> (SAP/initial eval) is the most important, followed by <strong>EVALUATION_INITIAL</strong> and <strong>SAP_AMOUNT</strong>. This suggests the model uses features that are only defined when a claim exists — a clear leakage path.</div>
                         </div>
                     </div>
 
@@ -581,10 +604,12 @@
                         <div class="chart-panel">
                             <div class="chart-container"><canvas id="cPredActual"></canvas></div>
                             <div class="chart-caption">Test set — MAPE = 58,829%</div>
+                            <div class="chart-observation"><strong>Observation:</strong> Predicted values (orange) are largely flat, failing to capture the extreme actual spikes (e.g., 1.30 in Jan 2017). The model is insensitive to these outliers, leading to massive errors. The MAPE is driven by these extremes — the model is essentially predicting a constant value.</div>
                         </div>
                         <div class="chart-panel">
                             <div class="chart-container"><canvas id="cForecast"></canvas></div>
                             <div class="chart-caption">6‑month collection forecast</div>
+                            <div class="chart-observation"><strong>Observation:</strong> The forecast (dashed line) continues the flat trend, which is unrealistic given the historical volatility. The 6‑month forecast is essentially a flat line, which will not aid treasury planning. The model fails to capture seasonality or trend, likely due to additive seasonality assumption being violated.</div>
                         </div>
                     </div>
 
@@ -1054,8 +1079,8 @@
         - R²: 0.936
         - MAE: 18,110 FCFA
         - Top features: BRANCHE_ENC (branch) and EVALUATION_INITIAL (initial estimate)
-        - Residuals are centered around zero → unbiased
-        - Conclusion: reliable for reserving, pricing, and fraud detection.
+        - Residuals: symmetric, homoscedastic, slight positive skew.
+        - Observation: slight underprediction for high‑value claims (>35k FCFA). Reliable overall.
 
         Model B — Classification (Likelihood):
         - Type: XGBoost Classifier
@@ -1071,7 +1096,7 @@
         - Target: monthly encaissements (collections)
         - MAPE: 58,829% (unusable)
         - Issues: extreme outliers (e.g., 1.30 spike in 2017-01), short history (~3 years), additive seasonality may be wrong.
-        - Conclusion: Not usable for treasury. Switch to SARIMA or Prophet, apply robust scaling, add external predictors.
+        - Observation: forecast is flat, fails to capture volatility. Not usable for treasury.
         `;
 
         // ── DOM refs ──
@@ -1152,13 +1177,13 @@
         function getLocalResponse(question) {
             const lower = question.toLowerCase();
             if (lower.includes('model a') || lower.includes('severity') || lower.includes('regression')) {
-                return `📊 <strong>Model A — Regression</strong><br>R² = 0.936, MAE = 18,110 FCFA. Top drivers: BRANCHE_ENC and EVALUATION_INITIAL. Residuals are unbiased. Reliable for reserving and pricing.`;
+                return `📊 <strong>Model A — Regression</strong><br>R² = 0.936, MAE = 18,110 FCFA. Top drivers: BRANCHE_ENC and EVALUATION_INITIAL. Residuals are symmetric and homoscedastic, with slight positive skew. Reliable overall, though slight underprediction for high‑value claims.`;
             }
             if (lower.includes('model b') || lower.includes('likelihood') || lower.includes('classification')) {
-                return `🎯 <strong>Model B — Classification</strong><br>AUC = 1.000, 100% accuracy. ⚠️ Caveat: possible data leakage – EVALUATION_INITIAL may be leaking. Not deployable.`;
+                return `🎯 <strong>Model B — Classification</strong><br>AUC = 1.000, 100% accuracy. ⚠️ Caveat: possible data leakage – EVALUATION_INITIAL may be leaking. Not deployable. Feature importance shows RATIO_SAP_EVAL dominates.`;
             }
             if (lower.includes('model c') || lower.includes('collections') || lower.includes('forecast') || lower.includes('time series')) {
-                return `📈 <strong>Model C — Time‑series</strong><br>MAPE = 58,829% – unusable. Issues: outliers, short history. Switch to SARIMA or Prophet.`;
+                return `📈 <strong>Model C — Time‑series</strong><br>MAPE = 58,829% – unusable. Issues: extreme outliers (Jan 2017), flat forecast. Switch to SARIMA or Prophet.`;
             }
             return `I didn't catch which model you're asking about. Try mentioning "Model A", "Model B", or "Model C".`;
         }
